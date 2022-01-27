@@ -113,12 +113,12 @@ impl Term {
 
   /// Moves the cursor up `n` lines
   pub fn move_cursor_up(&self, n: usize) -> io::Result<()> {
-    move_cursor_up(self, n);
+    move_cursor_up(self, n)
   }
 
   /// Moves the cursor down `n` lines
   pub fn move_cursor_down(&self, n: usize) -> io::Result<()> {
-    move_cursor_down(self, n);
+    move_cursor_down(self, n)
   }
 
   /// Clears the current line.
