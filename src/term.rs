@@ -167,7 +167,7 @@ impl Term {
 
   /// Checks if this terminal wants emoji output.
   pub fn want_emoji(&self) -> bool {
-    self.is_term() && wants_emoji();
+    self.is_term() && wants_emoji()
   }
 
   /// Returns the terminal size or gets sensible defaults.
