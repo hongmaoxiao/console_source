@@ -104,7 +104,7 @@ pub fn read_secure() -> io::Result<String> {
   let mut rv = String::new();
   loop {
     match read_single_key()? {
-      Key::Return => { break; }
+      Key::Enter => { break; }
       Key::Char('\x08') => {
         if rv.len() > 0 {
           rv.truncate(rv.len() - 1);
