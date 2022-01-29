@@ -4,10 +4,9 @@ use std::char;
 use std::os::windows::io::AsRawHandle;
 
 use winapi;
-use winapi::shared::minwindef::{DWORD};
-use winapi::um::winbase::{STD_OUTPUT_HANDLE};
+use winapi::shared::minwindef::DWORD;
+use winapi::um::winbase::STD_OUTPUT_HANDLE;
 use winapi::um::winnt::{INT, CHAR, HANDLE};
-use winapi::um::consoleapi::{GetConsoleMode};
 use winapi::um::processenv::{GetStdHandle};
 use winapi::um::wincon::{GetConsoleScreenBufferInfo, SetConsoleCursorPosition,
                          FillConsoleOutputCharacterA, COORD,
@@ -27,10 +26,12 @@ pub fn as_handle(term: &Term) -> HANDLE {
 }
 
 pub fn is_a_terminal(out: &Term) -> bool {
-  unsafe {
-    let mut tmp = 0;
-    GetConsoleMode(as_handle(out), &mut tmp) != 0
-  }
+  let stream = match out.target() {
+    TermTarget::Stdout => atty::Stream::Stdout,
+    TermTarget::Stderr => atty::Stream::Stderr,
+    _ => return false
+  };
+  atty::is(stream)
 }
 
 pub fn terminal_size() -> Option<(u16, u16)> {

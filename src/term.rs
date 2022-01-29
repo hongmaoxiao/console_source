@@ -10,7 +10,9 @@ use kb::Key;
 
 use parking_lot::Mutex;
 
-enum TermTarget {
+/// Where the term is writing.
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum TermTarget {
   Stdout,
   Stderr,
 }
@@ -54,6 +56,11 @@ impl Term {
       target: TermTarget::Stderr,
       buffer: Some(Mutex::new(vec![])),
     }
+  }
+
+  /// Returns the targert
+  pub fn target(&self) -> TermTarget {
+    self.target
   }
 
   #[doc(hidden)]
@@ -255,7 +262,7 @@ impl AsRawHandle for Term {
   fn as_raw_handle(&self) -> RawHandle {
     use winapi::um::winbase::{STD_OUTPUT_HANDLE, STD_ERROR_HANDLE};
     use winapi::um::processenv::{GetStdHandle};
-    
+
     unsafe {
       GetStdHandle(match self.target {
         TermTarget::Stdout => STD_OUTPUT_HANDLE,
