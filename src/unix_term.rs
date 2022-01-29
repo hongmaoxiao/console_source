@@ -12,6 +12,8 @@ use termios;
 use kb::Key;
 use term::Term;
 
+pub use common_term::*;
+
 pub const DEFAULT_WIDTH: u16 = 80;
 
 #[inline(always)]
