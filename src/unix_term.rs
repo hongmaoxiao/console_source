@@ -92,7 +92,7 @@ pub fn read_secure() -> io::Result<String> {
     termios::tcsetattr(fd, termios::TCSAFLUSH, &original)?;
 
     read_rv.map(|_| {
-        let len = rv.trim_start_matches(&['\r', '\n'][..]).len();
+        let len = rv.trim_end_matches(&['\r', '\n'][..]).len();
         rv.truncate(len);
         rv
     })
