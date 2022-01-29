@@ -307,7 +307,7 @@ impl Term {
         self.move_cursor_up(n)?;
         for _ in 0..n {
             self.clear_line()?;
-            self.move_cursor_down(1);
+            self.move_cursor_down(1)?;
         }
         self.move_cursor_up(n)?;
         Ok(())
@@ -316,6 +316,16 @@ impl Term {
     /// Clears the entire screen.
     pub fn clear_screen(&self) -> io::Result<()> {
         clear_screen(self)
+    }
+
+    /// Makes cursor visible again
+    pub fn show_cursor(&self) -> io::Result<()> {
+        show_cursor(self)
+    }
+
+    /// Hides cursor
+    pub fn hide_cursor(&self) -> io::Result<()> {
+        hide_cursor(self)
     }
 
     // helpers
