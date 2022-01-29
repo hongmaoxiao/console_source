@@ -1,28 +1,28 @@
 use std::char;
 use std::io;
 use std::mem;
-use std::slice;
 use std::os::windows::io::AsRawHandle;
+use std::slice;
 
 use winapi;
+use winapi::ctypes::c_void;
 use winapi::shared::minwindef::DWORD;
+use winapi::shared::minwindef::MAX_PATH;
+use winapi::um::fileapi::FILE_NAME_INFO;
+use winapi::um::minwinbase::FileNameInfo;
 use winapi::um::processenv::GetStdHandle;
+use winapi::um::winbase::GetFileInformationByHandleEx;
 use winapi::um::winbase::STD_OUTPUT_HANDLE;
 use winapi::um::wincon::{
     FillConsoleOutputCharacterA, GetConsoleScreenBufferInfo, SetConsoleCursorPosition,
     CONSOLE_SCREEN_BUFFER_INFO, COORD,
 };
 use winapi::um::winnt::{CHAR, HANDLE, INT, WCHAR};
-use winapi::ctypes::c_void;
-use winapi::um::winbase::GetFileInformationByHandleEx;
-use winapi::um::fileapi::FILE_NAME_INFO;
-use winapi::um::minwinbase::FileNameInfo;
-use winapi::shared::minwindef::MAX_PATH;
 
 use atty;
+use common_term;
 use kb::Key;
 use term::{Term, TermTarget};
-use common_term;
 
 pub const DEFAULT_WIDTH: u16 = 79;
 
@@ -54,7 +54,7 @@ pub fn terminal_size() -> Option<(u16, u16)> {
 
 pub fn move_cursor_up(out: &Term, n: usize) -> io::Result<()> {
     if msys_tty_on(out) {
-      return common_term::move_cursor_up(out, n);
+        return common_term::move_cursor_up(out, n);
     }
     if let Some((hand, csbi)) = get_console_screen_buffer_info(as_handle(out)) {
         unsafe {
@@ -72,7 +72,7 @@ pub fn move_cursor_up(out: &Term, n: usize) -> io::Result<()> {
 
 pub fn move_cursor_down(out: &Term, n: usize) -> io::Result<()> {
     if msys_tty_on(out) {
-      return common_term::move_cursor_down(out, n);
+        return common_term::move_cursor_down(out, n);
     }
     if let Some((hand, csbi)) = get_console_screen_buffer_info(as_handle(out)) {
         unsafe {
@@ -90,7 +90,7 @@ pub fn move_cursor_down(out: &Term, n: usize) -> io::Result<()> {
 
 pub fn clear_line(out: &Term) -> io::Result<()> {
     if msys_tty_on(out) {
-      return common_term::clear_line(out);
+        return common_term::clear_line(out);
     }
     if let Some((hand, csbi)) = get_console_screen_buffer_info(as_handle(out)) {
         unsafe {
@@ -173,31 +173,31 @@ pub fn wants_emoji() -> bool {
 
 /// Returns true if there is an MSYS tty on the given handle.
 fn msys_tty_on(term: &Term) -> bool {
-  let handle = term.as_raw_fd();
-  unsafe {
-    let size = mem::size_of::<FILE_NAME_INFO>();
-    let mut name_info_bytes = vec![0u8, size + MAX_PATH * mem::size_of::<WCHAR>()];
-    let res = GetFileInformationByHandleEx(
-      handle as *mut _, 
-      FileNameInfo,
-      &mut *name_info_bytes as *mut _ as *mut c_void,
-      name_info_bytes.len() as u32,
-    );
-    if res == 0 {
-      return false;
+    let handle = term.as_raw_fd();
+    unsafe {
+        let size = mem::size_of::<FILE_NAME_INFO>();
+        let mut name_info_bytes = vec![0u8, size + MAX_PATH * mem::size_of::<WCHAR>()];
+        let res = GetFileInformationByHandleEx(
+            handle as *mut _,
+            FileNameInfo,
+            &mut *name_info_bytes as *mut _ as *mut c_void,
+            name_info_bytes.len() as u32,
+        );
+        if res == 0 {
+            return false;
+        }
+        let name_info: &FILE_NAME_INFO = &*(name_info_bytes.as_ptr() as *const FILE_NAME_INFO);
+        let s = slice::from_raw_parts(
+            name_info.FileName.as_ptr(),
+            name_info.FileNameLength as usize / 2,
+        );
+        let name = String::from_utf16_lossy(s);
+        // This checks whether 'pty' exists in the file name, which indicates that
+        // a pseudo-terminal is attached. To mitigate against false positives
+        // (e.g., an actual file name that contains 'pty'), we also require that
+        // either the strings 'msys-' or 'cygwin-' are in the file name as well.)
+        let is_msys = name.contains("msys-") || name.contains("cygwin-");
+        let is_pty = name.contains("-pty");
+        is_msys && is_pty
     }
-    let name_info: &FILE_NAME_INFO = &*(name_info_bytes.as_ptr() as *const FILE_NAME_INFO);
-    let s = slice::from_raw_parts(
-      name_info.FileName.as_ptr(),
-      name_info.FileNameLength as usize / 2,
-    );
-    let name = String::from_utf16_lossy(s);
-    // This checks whether 'pty' exists in the file name, which indicates that
-    // a pseudo-terminal is attached. To mitigate against false positives
-    // (e.g., an actual file name that contains 'pty'), we also require that
-    // either the strings 'msys-' or 'cygwin-' are in the file name as well.)
-    let is_msys = name.contains("msys-") || name.contains("cygwin-");
-    let is_pty = name.contains("-pty");
-    is_msys && is_pty
-  }
 }
