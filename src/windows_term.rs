@@ -24,7 +24,6 @@ use kb::Key;
 use term::{Term, TermTarget};
 use common_term;
 
-
 pub const DEFAULT_WIDTH: u16 = 79;
 
 pub fn as_handle(term: &Term) -> HANDLE {
