@@ -4,14 +4,14 @@
 /// from the keyboard.
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub enum Key {
-  Unknown,
-  ArrowLeft,
-  ArrowRight,
-  ArrowUp,
-  ArrowDown,
-  Enter,
-  Escape,
-  Char(char),
-  #[doc(hidden)]
-  __More,
+    Unknown,
+    ArrowLeft,
+    ArrowRight,
+    ArrowUp,
+    ArrowDown,
+    Enter,
+    Escape,
+    Char(char),
+    #[doc(hidden)]
+    __More,
 }
