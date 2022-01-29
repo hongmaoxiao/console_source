@@ -655,7 +655,7 @@ pub fn pad_str<'a>(
     align: Alignment,
     truncate: Option<&str>,
 ) -> Cow<'a, str> {
-    pad_str_with(s, width, align, ' ')
+    pad_str_with(s, width, align, truncate, ' ')
 }
 
 /// Pads a string with specific padding to fill a certain number of characters.
